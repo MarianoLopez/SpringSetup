@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "jwt.EXPIRATIONTIME",
+      "type": "java.lang.String",
+      "description": "Description for jwt.EXPIRATIONTIME."
+  }
+] }
