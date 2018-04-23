@@ -36,7 +36,11 @@ class OnBoot(private val userService: UserService,private val roleDAO: RoleDAO, 
                     WebRule(id = "GET_USER",httpMethod = HttpMethod.GET, pattern = "/user/**", roles = listOf(tester,admin)),
                     WebRule(id = "*_USER",pattern = "/user/**",roles = listOf(admin)),
                     WebRule(id = "GET_ROLE",httpMethod = HttpMethod.GET, pattern = "/role/**",roles = listOf(tester,admin)),
-                    WebRule(id = "*_ROLE", pattern = "/role/**",roles = listOf(admin))))
+                    WebRule(id = "*_ROLE", pattern = "/role/**",roles = listOf(admin)),
+                    WebRule(id = "GET_API/**",httpMethod = HttpMethod.GET, pattern = "/api/**",roles = listOf(tester,admin)),
+                    WebRule(id = "POST_API/**",httpMethod = HttpMethod.POST, pattern = "/api/**",roles = listOf(admin)),
+                    WebRule(id = "PUT_API/**",httpMethod = HttpMethod.PUT, pattern = "/api/**",roles = listOf(admin))
+            ))
             println("NEED REBOOT")
         }
     }
