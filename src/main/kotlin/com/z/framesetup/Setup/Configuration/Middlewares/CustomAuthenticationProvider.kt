@@ -7,15 +7,16 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Component
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @Component
 class CustomAuthenticationProvider: AuthenticationProvider {//spring security auth implementation
-    @Autowired lateinit var userService: UserService
-    @Autowired lateinit var encoder: PasswordEncoder
+    @Autowired private lateinit var userService: UserService
+    @Autowired private lateinit var encoder: PasswordEncoder
 
-    @Throws(AuthenticationException::class)
-    override fun authenticate(authentication: Authentication): Authentication? {
+    @Throws(AuthenticationException::class,UsernameNotFoundException::class)
+    override fun authenticate(authentication: Authentication): Authentication{
         val name = authentication.name
         val password = authentication.credentials.toString()
         val dbUser = userService.loadUserByUsername(name)

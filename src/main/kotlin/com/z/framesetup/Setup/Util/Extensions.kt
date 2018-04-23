@@ -24,9 +24,11 @@ fun LocalDateTime.asDate():Date = Date.from(this.atZone(ZoneId.systemDefault()).
 fun Date.asLocalDate():LocalDate = Instant.ofEpochMilli(this.time).atZone(ZoneId.systemDefault()).toLocalDate()
 fun Date.asLocalDateTime():LocalDateTime = Instant.ofEpochMilli(this.time).atZone(ZoneId.systemDefault()).toLocalDateTime()
 
-fun String.run(timeoutInSeconds:Long = 5L): String  {
+fun String.run(timeoutInSeconds:Long = 5L):String{
     return try{
-        ProcessBuilder(this).start().apply { waitFor(timeoutInSeconds, TimeUnit.SECONDS) }.inputStream.reader().use { it.readText() }
+        ProcessBuilder("bash",*this.split("[\\r\\n]+").toTypedArray())
+                .inheritIO()
+                .start().apply { waitFor(timeoutInSeconds, TimeUnit.SECONDS) }.inputStream.bufferedReader().use { it.readText() }
     }catch (ioe: IOException){
         ioe.message ?: ioe.toString()
     }

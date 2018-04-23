@@ -16,6 +16,6 @@ class ErrorHandler{
     @ExceptionHandler(Exception::class)
     fun conflict(req: HttpServletRequest, ex:Exception): Message {
         logger.error(ex.toString())
-        return Message(title = "error", message = ex.message ?: ex.toString())
+        return Message(title = "ExceptionHandler", message = ex.message ?: ex.toString())
     }
 }

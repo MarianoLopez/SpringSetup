@@ -4,14 +4,12 @@ package com.z.framesetup.Setup.Services
 
 import com.z.framesetup.Setup.Data.User
 import com.z.framesetup.Setup.Data.UserDAO
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.*
 
 
 @Service("UserService")
@@ -20,17 +18,14 @@ class UserService(val userDAO: UserDAO, private val encoder: PasswordEncoder): U
     fun insert(user: User): User  = userDAO.insert(user.apply { this.password =  encoder.encode(this.password) })
 
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(username: String?): UserDetails {//load user info (security core)
-        if (username != null && username.isNotEmpty()){
+    override fun loadUserByUsername(username: String): UserDetails {//load user info (security core)
+        if (username.isNotEmpty()){
             userDAO.findFirstByName(username)?.let {
-                return org.springframework.security.core.userdetails.User(it.name, it.password,it.state,
+                return org.springframework.security.core.userdetails.User(it.name,it.password,it.state,
                         true,true,true,
                         it.roles.map { role -> SimpleGrantedAuthority("ROLE_${role.name}") })
             }
-            throw UsernameNotFoundException("Username not found")
-        } else {
-            println("UserService Username not found - null")
-            throw UsernameNotFoundException("Username not found")
         }
+        throw UsernameNotFoundException("Username not found")
     }
 }

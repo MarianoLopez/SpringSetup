@@ -22,7 +22,7 @@ class CustomRequestFilter : OncePerRequestFilter(){
     private lateinit var mapper: ObjectMapper
 
     @Value("\${jsonWebToken.header}") private val HEADER_STRING: String = "Authorization"
-    @Value("\${request.filter.jsonWebToken.do-not-eval}") private val doNotEval:List<String> = emptyList()
+    @Value("\${request.filter.jsonWebToken.do-not-eval}") private val doNotEval:Array<String> = arrayOf("/","/login","/swagger-ui.html")
     @Value("\${request.filter.resources-regex}") private val resourcesRegex:String = "^(/js|/css|/fonts)/.*\$"
     @Value("\${request.filter.cors.allow-origin}") private val allowOrigin:String=""
     @Value("\${request.filter.cors.allow-methods}") private val allowMethods:String=""
@@ -32,24 +32,23 @@ class CustomRequestFilter : OncePerRequestFilter(){
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, filterChain: FilterChain) {
-        setCrossOriginResourceSharing(res)//add cors headers
         if (swaggerRedirect.contains(req.requestURI)){//check for redirect to swagger
             res.sendRedirect(req.contextPath+ "/swagger-ui.html")
         }else{
-            if(doNotEval.contains(req.requestURI)){//check forward
+            if(doNotEval.contains(req.requestURI)||isResource(req.requestURI)){//check forward
                 filterChain.doFilter(req, res)//continue request
             }else{
+                setCrossOriginResourceSharing(res)//add cors headers
                 val token = req.getHeader(HEADER_STRING)?:req.getParameter("token")
                 token.let {
                     try{
                         val authentication = tokenService.getAuthentication(req)//get auth from token
-                        //println(authentication)
                         SecurityContextHolder.getContext().authentication = authentication//set auth on spring security context
                         filterChain.doFilter(req, res)//continue request
                     }catch(exception: RuntimeException ){
                         res.status = HttpServletResponse.SC_BAD_REQUEST
                         res.addHeader("Content-Type", "application/json")
-                        res.writer.write(mapper.writeValueAsString(Message(exception.message!!, message = exception.message?:exception.toString())))
+                        res.writer.write(mapper.writeValueAsString(Message("auth error", message = exception.message?:exception.toString())))
                     }
                 }
             }
